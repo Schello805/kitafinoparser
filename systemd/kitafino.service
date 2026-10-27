@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=root
-WorkingDirectory=/opt/kitafino
+WorkingDirectory=/opt/kitafinoparser
 ExecStart=/usr/bin/node src/server.js
 Restart=always
 RestartSec=10
