@@ -1,0 +1,22 @@
+{
+  "kitafino": {
+    "username": "",
+    "password": "",
+    "projectId": ""
+  },
+  "ntfy": {
+    "url": "https://ntfy.schellenberger.biz/kitafino",
+    "token": "",
+    "username": "",
+    "password": ""
+  },
+  "schedule": {
+    "enabled": true,
+    "time": "06:30",
+    "weekdaysOnly": true
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 3010
+  }
+}

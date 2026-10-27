@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Kitafino-Wächter</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="head">
+        <div class="brand">
+          <div class="brand-icon" aria-hidden="true">🍲</div>
+          <div>
+            <h1>Kitafino-Wächter</h1>
+            <p id="sub-headline" class="sub">Hat meine Tochter heute Essen bestellt?</p>
+            <div id="account-bar" class="account-bar" hidden>
+              <span id="account-child" class="account-pill child-pill"></span>
+              <span id="account-facility" class="account-pill facility-pill"></span>
+              <span id="account-balance" class="account-pill balance-pill"></span>
+            </div>
+          </div>
+        </div>
+        <div class="head-actions">
+          <button
+            id="open-settings-top"
+            class="button-ghost small"
+            type="button"
+            aria-controls="settings"
+            aria-expanded="false"
+          >
+            <span aria-hidden="true">⚙</span> Settings
+          </button>
+          <button id="refresh" class="button-icon" type="button" title="Status neu laden" aria-label="Status neu laden">
+            <span aria-hidden="true">⟳</span>
+          </button>
+        </div>
+      </header>
+
+      <div id="banner" class="banner" role="alert" hidden></div>
+
+      <!-- Hero Status Card -->
+      <section id="status" class="card status-card" aria-live="polite">
+        <div class="status-top">
+          <span id="status-chip" class="status-chip">Lädt …</span>
+          <span id="status-date" class="status-date"></span>
+        </div>
+        <h2 id="status-headline" class="status-headline">Einen Moment …</h2>
+        <div class="menu-box">
+          <p id="status-menu" class="status-menu"></p>
+        </div>
+        <div id="status-deadlines" class="deadlines-box" hidden></div>
+        <div id="status-meta" class="status-meta"></div>
+      </section>
+
+      <!-- Quick Action Buttons -->
+      <div class="actions">
+        <button id="check" class="btn btn-primary" type="button">
+          <span class="btn-icon">⟳</span> Jetzt prüfen
+        </button>
+        <button id="check-notify" class="btn btn-secondary" type="button">
+          <span class="btn-icon">🔔</span> Prüfen &amp; ntfy
+        </button>
+        <button id="test" class="btn btn-secondary" type="button">
+          <span class="btn-icon">✉</span> ntfy Test
+        </button>
+      </div>
+
+      <!-- Weekly Overview -->
+      <section class="card week-card">
+        <div class="card-head">
+          <div class="card-head-title">
+            <span class="section-icon" aria-hidden="true">📅</span>
+            <h2>Diese Woche</h2>
+          </div>
+          <span id="week-summary" class="summary-pill"></span>
+        </div>
+        <ul id="week" class="week-list"></ul>
+      </section>
+
+      <!-- Settings Section -->
+      <section id="settings-card" class="card settings-card">
+        <div class="card-head">
+          <div class="card-head-title">
+            <span class="section-icon" aria-hidden="true">⚙</span>
+            <div>
+              <h2>Settings &amp; Zugangsdaten</h2>
+              <p class="sub-small">Uhrzeit der Nachricht, ntfy-Push &amp; Homematic für Alexa</p>
+            </div>
+          </div>
+          <button
+            id="toggle-settings"
+            class="button-ghost small"
+            type="button"
+            aria-controls="settings"
+            aria-expanded="false"
+          >
+            Öffnen
+          </button>
+        </div>
+
+        <form id="settings" class="settings-form" method="post" action="/api/settings" hidden novalidate>
+          
+          <!-- Zeitplan -->
+          <fieldset class="form-fieldset">
+            <legend class="form-legend">
+              <span class="legend-icon">⏰</span> Uhrzeit der Nachricht (Zeitplan)
+            </legend>
+
+            <div class="field">
+              <label for="schedule-time">Uhrzeit der täglichen Benachrichtigung</label>
+              <span id="time-hint" class="hint-block">
+                Morgendliche Prüfzeit (Europe/Berlin), um automatisch nachzusehen und ntfy/Homematic zu senden.
+              </span>
+              <input
+                id="schedule-time"
+                name="time"
+                type="time"
+                required
+                aria-describedby="time-hint"
+                aria-errormessage="time-error"
+              />
+              <div id="time-error" class="error-msg">
+                <span aria-hidden="true">⚠</span> Bitte eine gültige Uhrzeit auswählen (z. B. 06:30).
+              </div>
+            </div>
+
+            <div class="checkbox-group">
+              <input id="schedule-enabled" name="scheduleEnabled" type="checkbox" />
+              <label for="schedule-enabled">Automatisch morgens prüfen und benachrichtigen</label>
+            </div>
+
+            <div class="checkbox-group">
+              <input id="weekdays-only" name="weekdaysOnly" type="checkbox" />
+              <label for="weekdays-only">Nur an Schultagen (Montag bis Freitag)</label>
+            </div>
+          </fieldset>
+
+          <!-- Kitafino Zugangsdaten -->
+          <fieldset class="form-fieldset">
+            <legend class="form-legend">
+              <span class="legend-icon">🔐</span> Kitafino-Zugangsdaten
+              <span id="kitafino-cred-badge" class="cred-badge"></span>
+            </legend>
+
+            <div class="field">
+              <label for="username">Benutzername / E-Mail</label>
+              <span id="username-hint" class="hint-block">
+                Gleiche Anmeldedaten wie in der Kitafino-App oder auf kitafino.de.
+              </span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autocomplete="username"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                required
+                placeholder="dein-benutzername"
+                aria-describedby="username-hint"
+                aria-errormessage="username-error"
+              />
+              <div id="username-error" class="error-msg">
+                <span aria-hidden="true">⚠</span> Bitte den Kitafino-Benutzernamen angeben.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="password">Passwort</label>
+              <span id="password-hint" class="hint-block">
+                Leer lassen, wenn das bisherige Passwort erhalten bleiben soll.
+              </span>
+              <div class="input-with-toggle">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Unverändert lassen"
+                  aria-describedby="password-hint"
+                />
+                <button
+                  id="toggle-password"
+                  class="button-ghost small toggle-pw"
+                  type="button"
+                  aria-pressed="false"
+                  aria-label="Passwort anzeigen"
+                >
+                  Anzeigen
+                </button>
+              </div>
+            </div>
+
+            <div class="inline-actions">
+              <button id="test-login" class="btn btn-secondary small" type="button">
+                ✓ Login testen
+              </button>
+              <span id="login-test-msg" class="form-msg" aria-live="polite"></span>
+            </div>
+          </fieldset>
+
+          <!-- ntfy Push-Server -->
+          <fieldset class="form-fieldset">
+            <legend class="form-legend">
+              <span class="legend-icon">📱</span> ntfy-Server &amp; Zugangsdaten
+              <span id="ntfy-cred-badge" class="cred-badge"></span>
+            </legend>
+
+            <div class="field">
+              <label for="ntfy-url">ntfy Topic-URL</label>
+              <span id="ntfy-url-hint" class="hint-block">
+                Format: https://ntfy.example.de/mein-thema
+              </span>
+              <input
+                id="ntfy-url"
+                name="ntfyUrl"
+                type="url"
+                required
+                placeholder="https://ntfy.schellenberger.biz/kitafino"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-describedby="ntfy-url-hint"
+                aria-errormessage="ntfy-url-error"
+              />
+              <div id="ntfy-url-error" class="error-msg">
+                <span aria-hidden="true">⚠</span> Bitte eine gültige URL mit http:// oder https:// eingeben.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="ntfy-token">ntfy Access-Token <span class="hint">(optional)</span></label>
+              <span id="ntfy-token-hint" class="hint-block">
+                Für geschützte ntfy-Themen mit Bearer-Token (z. B. tk_…).
+              </span>
+              <div class="input-with-toggle">
+                <input
+                  id="ntfy-token"
+                  name="ntfyToken"
+                  type="password"
+                  autocomplete="off"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Unverändert lassen"
+                  aria-describedby="ntfy-token-hint"
+                />
+                <button
+                  id="toggle-token"
+                  class="button-ghost small toggle-pw"
+                  type="button"
+                  aria-pressed="false"
+                  aria-label="Token anzeigen"
+                >
+                  Anzeigen
+                </button>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="ntfy-username">ntfy Benutzername <span class="hint">(optional)</span></label>
+                <input
+                  id="ntfy-username"
+                  name="ntfyUsername"
+                  type="text"
+                  autocomplete="off"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                  placeholder="Bei Basic-Auth"
+                />
+              </div>
+              <div class="field">
+                <label for="ntfy-password">ntfy Passwort <span class="hint">(optional)</span></label>
+                <input
+                  id="ntfy-password"
+                  name="ntfyPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Unverändert lassen"
+                />
+              </div>
+            </div>
+
+            <div class="checkbox-group">
+              <input id="clear-token" name="clearToken" type="checkbox" />
+              <label for="clear-token">Gespeichertes ntfy-Token / Passwort entfernen</label>
+            </div>
+          </fieldset>
+
+          <!-- Homematic Systemvariable für Alexa -->
+          <fieldset class="form-fieldset">
+            <legend class="form-legend">
+              <span class="legend-icon">🗣️</span> Homematic &amp; Alexa-Sprachausgabe
+              <span id="homematic-badge" class="cred-badge"></span>
+            </legend>
+
+            <div class="checkbox-group">
+              <input id="homematic-enabled" name="homematicEnabled" type="checkbox" />
+              <label for="homematic-enabled"><strong>Homematic-Systemvariable bei jedem Abruf aktualisieren</strong></label>
+            </div>
+
+            <div class="field">
+              <label for="homematic-host">Homematic CCU IP-Adresse oder Hostname</label>
+              <span id="homematic-host-hint" class="hint-block">
+                Z. B. <code>192.168.1.50</code> oder <code>ccu3.local</code> (Standard-Port 8181 ReGaHss).
+              </span>
+              <input
+                id="homematic-host"
+                name="homematicHost"
+                type="text"
+                placeholder="192.168.1.50"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+                aria-describedby="homematic-host-hint"
+              />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="homematic-var">Name der Text-Systemvariable</label>
+                <span class="hint-block">Wird mit dem Menü bzw. Sprachansage gefüllt.</span>
+                <input
+                  id="homematic-var"
+                  name="homematicVar"
+                  type="text"
+                  placeholder="Kitafino_Essen"
+                  value="Kitafino_Essen"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+              </div>
+              <div class="field">
+                <label for="homematic-var-bool">Optionale Logikvariable <span class="hint">(wahr/falsch)</span></label>
+                <span class="hint-block">Optional: wahr wenn bestellt, sonst falsch.</span>
+                <input
+                  id="homematic-var-bool"
+                  name="homematicVarBool"
+                  type="text"
+                  placeholder="Z. B. Kitafino_Bestellt"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="homematic-speech-mode">Text-Format für Alexa-Sprachausgabe</label>
+              <select id="homematic-speech-mode" name="speechMode">
+                <option value="sentence">Ganzer Satz für Alexa (z. B. „Frieda hat heute Essen bestellt: ...“)</option>
+                <option value="menuOnly">Nur das Gericht (z. B. „Nudeln mit Schinkensahnesauce...“)</option>
+              </select>
+            </div>
+
+            <div class="inline-actions">
+              <button id="test-homematic" class="btn btn-secondary small" type="button">
+                📢 Homematic testen
+              </button>
+              <span id="homematic-test-msg" class="form-msg" aria-live="polite"></span>
+            </div>
+          </fieldset>
+
+          <div class="form-actions">
+            <button id="save-settings" class="btn btn-primary" type="submit">
+              Einstellungen speichern
+            </button>
+            <span id="settings-msg" class="form-msg" aria-live="polite"></span>
+          </div>
+        </form>
+
+        <p id="schedule-info" class="schedule-info-box"></p>
+      </section>
+
+      <footer class="foot">
+        <p>Kitafino-Wächter · Lokal betrieben. Zugangsdaten liegen sicher in <code>config/config.json</code>.</p>
+        <p id="notify-state" class="footer-meta"></p>
+        <p id="homematic-state" class="footer-meta"></p>
+      </footer>
+    </main>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

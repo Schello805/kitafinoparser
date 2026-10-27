@@ -1,0 +1,17 @@
+{
+  "name": "kitafino-waechter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Lokale Webseite, die prüft ob bei Kitafino ein Essen bestellt ist und per ntfy benachrichtigt",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "check-login": "node tools/login-debug.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  }
+}
