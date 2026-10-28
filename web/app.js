@@ -617,32 +617,67 @@ const calBox = $('calendar-box');
 const calInput = $('cal-url-input');
 const webcalLink = $('webcal-link');
 
-$('open-calendar-modal').addEventListener('click', () => {
+function syncCalendarUrls() {
+  const fullCalUrl = `${window.location.origin}/calendar.ics`;
+  if (calInput) calInput.value = fullCalUrl;
+  if (webcalLink) webcalLink.href = fullCalUrl.replace(/^http/, 'webcal');
+}
+syncCalendarUrls();
+
+$('open-calendar-modal')?.addEventListener('click', () => {
   const isHidden = calBox.hidden;
   calBox.hidden = !isHidden;
   if (!calBox.hidden) {
-    const fullCalUrl = `${window.location.origin}/calendar.ics`;
-    calInput.value = fullCalUrl;
-    webcalLink.href = fullCalUrl.replace(/^http/, 'webcal');
+    syncCalendarUrls();
   }
 });
 
-$('close-calendar-box').addEventListener('click', () => {
+$('close-calendar-box')?.addEventListener('click', () => {
   calBox.hidden = true;
 });
 
-$('copy-cal-url').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(calInput.value);
-    $('cal-copy-msg').textContent = '✓ Kalender-URL in die Zwischenablage kopiert!';
-    setTimeout(() => {
-      $('cal-copy-msg').textContent = '';
-    }, 4000);
-  } catch {
-    calInput.select();
-    $('cal-copy-msg').textContent = 'Bitte Text manuell kopieren.';
+async function handleCopyCalUrl() {
+  syncCalendarUrls();
+  const val = calInput?.value || `${window.location.origin}/calendar.ics`;
+  let success = false;
+
+  if (navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(val);
+      success = true;
+    } catch {
+      success = false;
+    }
   }
-});
+
+  if (!success && calInput) {
+    calInput.focus();
+    calInput.select();
+    try {
+      success = document.execCommand('copy');
+    } catch {
+      success = false;
+    }
+  }
+
+  const msg = $('cal-copy-msg');
+  if (msg) {
+    if (success) {
+      msg.textContent = '✓ Kalender-URL in die Zwischenablage kopiert!';
+      msg.style.color = 'var(--emerald-main)';
+    } else {
+      calInput?.select();
+      msg.textContent = 'Adresse markiert – drücke ⌘+C bzw. Strg+C zum Kopieren.';
+      msg.style.color = 'var(--text-muted)';
+    }
+    setTimeout(() => {
+      msg.textContent = '';
+    }, 4000);
+  }
+}
+
+$('copy-cal-url')?.addEventListener('click', handleCopyCalUrl);
+$('copy-cal-url-btn')?.addEventListener('click', handleCopyCalUrl);
 
 $('refresh').addEventListener('click', () => {
   loadState().catch((err) => showBanner(err.message));

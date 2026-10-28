@@ -537,20 +537,43 @@ h2 {
   align-items: center;
 }
 
+.cal-url-display-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.cal-url-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .cal-url-field {
+  flex: 1;
   font-family: ui-monospace, monospace;
-  font-size: 0.82rem;
-  padding: 7px 10px;
+  font-size: 0.84rem;
+  padding: 8px 12px;
   background: var(--surface);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
+  color: var(--text-main);
+  user-select: all;
+}
+
+.cal-hint-text {
+  font-size: 0.8rem;
   color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
 }
 
 .cal-copy-msg {
   font-size: 0.82rem;
   color: var(--emerald-main);
   font-weight: 600;
+  min-height: 1.2em;
 }
 
 .summary-pill {

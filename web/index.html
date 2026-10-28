@@ -102,7 +102,18 @@
               📋 URL kopieren
             </button>
           </div>
-          <input id="cal-url-input" class="cal-url-field" type="text" readonly value="" />
+          <div class="cal-url-display-wrap">
+            <label for="cal-url-input" class="sub-small">
+              <strong>Deine Kalender-Adresse (zum Abonnieren in Google Kalender / Outlook / Apple):</strong>
+            </label>
+            <div class="cal-url-input-group">
+              <input id="cal-url-input" class="cal-url-field" type="text" readonly value="" />
+              <button id="copy-cal-url-btn" class="btn btn-secondary small" type="button">Kopieren</button>
+            </div>
+            <p class="cal-hint-text">
+              ℹ️ <em>Du musst hier nichts eingeben!</em> Das ist die fertige Adresse deines Kalenders, die du z. B. im Google Kalender unter <strong>„Kalender hinzufügen → Per URL“</strong> einfügst.
+            </p>
+          </div>
           <span id="cal-copy-msg" class="cal-copy-msg" aria-live="polite"></span>
         </div>
 
