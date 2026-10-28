@@ -303,15 +303,19 @@ async function handleApi(req, res, pathname) {
     }
   }
 
-  if (req.method === 'GET' && (pathname === '/api/calendar.ics' || pathname === '/calendar.ics')) {
+  if ((req.method === 'GET' || req.method === 'HEAD') && (pathname === '/api/calendar.ics' || pathname === '/calendar.ics')) {
     const status = readState().lastStatus;
     const ics = generateCalendarIcs(status);
+    const buf = Buffer.from(ics, 'utf8');
     res.writeHead(200, {
       'Content-Type': 'text/calendar; charset=utf-8',
+      'Content-Length': buf.length,
       'Content-Disposition': 'inline; filename="kitafino.ics"',
-      'Cache-Control': 'no-cache, no-store',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Access-Control-Allow-Origin': '*',
     });
-    return res.end(ics);
+    if (req.method === 'HEAD') return res.end();
+    return res.end(buf);
   }
 
   if (req.method === 'POST' && pathname === '/api/balance-test') {
@@ -410,15 +414,19 @@ const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
   try {
-    if (pathname === '/calendar.ics') {
+    if (pathname === '/calendar.ics' || pathname === '/api/calendar.ics') {
       const status = readState().lastStatus;
       const ics = generateCalendarIcs(status);
+      const buf = Buffer.from(ics, 'utf8');
       res.writeHead(200, {
         'Content-Type': 'text/calendar; charset=utf-8',
+        'Content-Length': buf.length,
         'Content-Disposition': 'inline; filename="kitafino.ics"',
-        'Cache-Control': 'no-cache, no-store',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Access-Control-Allow-Origin': '*',
       });
-      return res.end(ics);
+      if (req.method === 'HEAD') return res.end();
+      return res.end(buf);
     }
 
     if (pathname.startsWith('/api/')) {

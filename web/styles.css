@@ -569,6 +569,22 @@ h2 {
   line-height: 1.4;
 }
 
+.cal-guide-hint {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  background: var(--surface);
+  border: 1px dashed var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-muted);
+}
+
+.cal-guide-hint .guide-tag {
+  font-weight: 600;
+  color: var(--emerald-main);
+  margin-right: 4px;
+}
+
 .cal-copy-msg {
   font-size: 0.82rem;
   color: var(--emerald-main);
