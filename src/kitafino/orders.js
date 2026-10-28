@@ -82,6 +82,15 @@ export function parseAccountInfo(html) {
   const rawBalance = clean(balanceAnchor.text());
   const balance = rawBalance ? `€ ${rawBalance}` : null;
 
+  let balanceAmount = null;
+  if (rawBalance) {
+    const numMatch = rawBalance.replace(/\s+/g, '').replace(',', '.').match(/[\d.]+/);
+    if (numMatch) {
+      const parsed = parseFloat(numMatch[0]);
+      if (!Number.isNaN(parsed)) balanceAmount = parsed;
+    }
+  }
+
   if (!facility && !childName && !balance) return null;
 
   return {
@@ -89,6 +98,7 @@ export function parseAccountInfo(html) {
     customerId: rawId,
     facility,
     balance,
+    balanceAmount,
     lowBalance: Boolean(lowBalanceWarning),
     lowBalanceWarning,
   };

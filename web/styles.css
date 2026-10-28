@@ -492,6 +492,67 @@ h2 {
 }
 
 /* Week List */
+.card-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-box {
+  background: var(--surface-subtle);
+  border: 1.5px dashed var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-block-end: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.calendar-box-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.button-icon-subtle {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.button-icon-subtle:hover {
+  background: var(--surface);
+  color: var(--text-main);
+}
+
+.calendar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.cal-url-field {
+  font-family: ui-monospace, monospace;
+  font-size: 0.82rem;
+  padding: 7px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+}
+
+.cal-copy-msg {
+  font-size: 0.82rem;
+  color: var(--emerald-main);
+  font-weight: 600;
+}
+
 .summary-pill {
   font-size: 0.8rem;
   font-weight: 600;

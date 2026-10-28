@@ -53,6 +53,18 @@ export function buildNotification(status) {
   };
 }
 
+export function buildBalanceNotification(account, threshold = 10) {
+  const child = account?.childName ? `für ${account.childName}` : 'auf dem Kitafino-Konto';
+  const balance = account?.balance || 'niedrig';
+  const limitFormatted = `€ ${Number(threshold).toFixed(2).replace('.', ',')}`;
+  return {
+    title: 'Kitafino: Guthaben aufladen!',
+    message: `Das Guthaben ${child} beträgt nur noch ${balance} (unter Limit von ${limitFormatted}). Bitte bald aufladen!`,
+    priority: 'urgent',
+    tags: 'warning,credit_card',
+  };
+}
+
 export async function sendNotification(
   { url, token, username, password } = {},
   notification,

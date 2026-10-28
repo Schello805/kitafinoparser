@@ -2,11 +2,12 @@ import fs from 'node:fs/promises';
 import http from 'node:http';
 import path from 'node:path';
 
+import { generateCalendarIcs } from './calendar.js';
 import { runCheck } from './checker.js';
 import { loadConfig, saveConfig } from './config.js';
 import { sendToHomematic } from './homematic.js';
 import { fetchTodayStatus } from './kitafino/orders.js';
-import { buildNotification, sendNotification } from './notify.js';
+import { buildNotification, buildBalanceNotification, sendNotification } from './notify.js';
 import { createScheduler, berlinNow, nextRunAt, normalizeTime } from './scheduler.js';
 import { readState, updateState } from './state.js';
 
@@ -48,6 +49,13 @@ function publicConfig() {
       variableName: config.homematic?.variableName || 'Kitafino_Essen',
       variableOrdered: config.homematic?.variableOrdered || '',
       speechMode: config.homematic?.speechMode || 'sentence',
+    },
+    balanceWatch: {
+      enabled: Boolean(config.balanceWatch?.enabled),
+      threshold: Number(config.balanceWatch?.threshold ?? 10),
+      notifyNtfy: Boolean(config.balanceWatch?.notifyNtfy ?? true),
+      homematicVariable: config.balanceWatch?.homematicVariable || 'Kitafino_Guthaben_Warnung',
+      homematicBalanceVar: config.balanceWatch?.homematicBalanceVar || '',
     },
     schedule: {
       enabled: config.schedule.enabled,
@@ -120,6 +128,7 @@ async function handleSettings(body) {
   const kitafino = body.kitafino ?? {};
   const ntfy = body.ntfy ?? {};
   const homematic = body.homematic ?? {};
+  const balanceWatch = body.balanceWatch ?? {};
   const schedule = body.schedule ?? {};
 
   if (typeof kitafino.username === 'string') {
@@ -166,6 +175,23 @@ async function handleSettings(body) {
   }
   if (typeof homematic.speechMode === 'string') {
     next.homematic.speechMode = homematic.speechMode.trim() === 'menuOnly' ? 'menuOnly' : 'sentence';
+  }
+
+  if (typeof balanceWatch.enabled === 'boolean') {
+    next.balanceWatch.enabled = balanceWatch.enabled;
+  }
+  if (balanceWatch.threshold !== undefined) {
+    const parsed = parseFloat(String(balanceWatch.threshold).replace(',', '.'));
+    if (!Number.isNaN(parsed) && parsed >= 0) next.balanceWatch.threshold = parsed;
+  }
+  if (typeof balanceWatch.notifyNtfy === 'boolean') {
+    next.balanceWatch.notifyNtfy = balanceWatch.notifyNtfy;
+  }
+  if (typeof balanceWatch.homematicVariable === 'string') {
+    next.balanceWatch.homematicVariable = balanceWatch.homematicVariable.trim();
+  }
+  if (typeof balanceWatch.homematicBalanceVar === 'string') {
+    next.balanceWatch.homematicBalanceVar = balanceWatch.homematicBalanceVar.trim();
   }
 
   if (typeof schedule.time === 'string') {
@@ -277,6 +303,47 @@ async function handleApi(req, res, pathname) {
     }
   }
 
+  if (req.method === 'GET' && (pathname === '/api/calendar.ics' || pathname === '/calendar.ics')) {
+    const status = readState().lastStatus;
+    const ics = generateCalendarIcs(status);
+    res.writeHead(200, {
+      'Content-Type': 'text/calendar; charset=utf-8',
+      'Content-Disposition': 'inline; filename="kitafino.ics"',
+      'Cache-Control': 'no-cache, no-store',
+    });
+    return res.end(ics);
+  }
+
+  if (req.method === 'POST' && pathname === '/api/balance-test') {
+    const status = readState().lastStatus;
+    const account = status?.account || {
+      childName: 'Frieda Schellenberger',
+      balance: '€ 0,30',
+      balanceAmount: 0.3,
+    };
+    const threshold = Number(config.balanceWatch?.threshold ?? 10);
+    const notification = buildBalanceNotification(account, threshold);
+
+    try {
+      await sendNotification(config.ntfy, notification);
+      if (config.homematic?.enabled && config.homematic?.host) {
+        await sendToHomematic(
+          {
+            ...config.homematic,
+            balanceWatch: config.balanceWatch,
+          },
+          status,
+        );
+      }
+      return sendJson(res, 200, {
+        ok: true,
+        message: `Guthaben-Warnung erfolgreich gesendet: „${notification.message}“`,
+      });
+    } catch (err) {
+      return sendJson(res, 502, { ok: false, error: err.message });
+    }
+  }
+
   if (req.method === 'POST' && pathname === '/api/notify-test') {
     const status = readState().lastStatus;
     const notification = status
@@ -343,6 +410,17 @@ const server = http.createServer(async (req, res) => {
   const { pathname } = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
   try {
+    if (pathname === '/calendar.ics') {
+      const status = readState().lastStatus;
+      const ics = generateCalendarIcs(status);
+      res.writeHead(200, {
+        'Content-Type': 'text/calendar; charset=utf-8',
+        'Content-Disposition': 'inline; filename="kitafino.ics"',
+        'Cache-Control': 'no-cache, no-store',
+      });
+      return res.end(ics);
+    }
+
     if (pathname.startsWith('/api/')) {
       await handleApi(req, res, pathname);
       return;

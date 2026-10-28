@@ -413,7 +413,20 @@ function renderSettings() {
     $('homematic-var').value = config.homematic?.variableName || 'Kitafino_Essen';
     $('homematic-var-bool').value = config.homematic?.variableOrdered ?? '';
     $('homematic-speech-mode').value = config.homematic?.speechMode || 'sentence';
+
+    // Balance Watch fields
+    const bw = config.balanceWatch ?? {};
+    $('balance-watch-enabled').checked = Boolean(bw.enabled ?? true);
+    $('balance-threshold').value = bw.threshold !== undefined ? bw.threshold : 10;
+    $('balance-homematic-var').value = bw.homematicVariable || 'Kitafino_Guthaben_Warnung';
+    $('balance-homematic-val-var').value = bw.homematicBalanceVar || '';
+    $('balance-notify-ntfy').checked = Boolean(bw.notifyNtfy ?? true);
   }
+
+  const bwBadge = $('balance-watch-badge');
+  const bwActive = Boolean(config.balanceWatch?.enabled);
+  bwBadge.dataset.ok = String(bwActive);
+  bwBadge.textContent = bwActive ? `✓ Aktiv (< ${config.balanceWatch?.threshold ?? 10} €)` : 'Inaktiv';
 
   const info = [
     config.schedule.enabled
@@ -571,6 +584,66 @@ $('test-homematic').addEventListener('click', async () => {
   }
 });
 
+$('test-balance').addEventListener('click', async () => {
+  const btn = $('test-balance');
+  const msg = $('balance-test-msg');
+  btn.disabled = true;
+  btn.textContent = 'Sende Test …';
+  msg.textContent = '';
+  msg.dataset.tone = '';
+
+  try {
+    const { ok, data } = await api('/api/balance-test', {
+      threshold: $('balance-threshold').value,
+    });
+    if (ok) {
+      msg.textContent = data.message || '✓ Guthaben-Warnung erfolgreich ausgelöst.';
+      msg.dataset.tone = 'ok';
+    } else {
+      msg.textContent = data.error || 'Test fehlgeschlagen.';
+      msg.dataset.tone = 'error';
+    }
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.dataset.tone = 'error';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '💳 Guthaben-Warnung testen';
+  }
+});
+
+// Calendar Box
+const calBox = $('calendar-box');
+const calInput = $('cal-url-input');
+const webcalLink = $('webcal-link');
+
+$('open-calendar-modal').addEventListener('click', () => {
+  const isHidden = calBox.hidden;
+  calBox.hidden = !isHidden;
+  if (!calBox.hidden) {
+    const fullCalUrl = `${window.location.origin}/calendar.ics`;
+    calInput.value = fullCalUrl;
+    webcalLink.href = fullCalUrl.replace(/^http/, 'webcal');
+  }
+});
+
+$('close-calendar-box').addEventListener('click', () => {
+  calBox.hidden = true;
+});
+
+$('copy-cal-url').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(calInput.value);
+    $('cal-copy-msg').textContent = '✓ Kalender-URL in die Zwischenablage kopiert!';
+    setTimeout(() => {
+      $('cal-copy-msg').textContent = '';
+    }, 4000);
+  } catch {
+    calInput.select();
+    $('cal-copy-msg').textContent = 'Bitte Text manuell kopieren.';
+  }
+});
+
 $('refresh').addEventListener('click', () => {
   loadState().catch((err) => showBanner(err.message));
 });
@@ -663,6 +736,13 @@ $('settings').addEventListener('submit', async (event) => {
         variableName: $('homematic-var').value,
         variableOrdered: $('homematic-var-bool').value,
         speechMode: $('homematic-speech-mode').value,
+      },
+      balanceWatch: {
+        enabled: $('balance-watch-enabled').checked,
+        threshold: parseFloat($('balance-threshold').value) || 10,
+        homematicVariable: $('balance-homematic-var').value,
+        homematicBalanceVar: $('balance-homematic-val-var').value,
+        notifyNtfy: $('balance-notify-ntfy').checked,
       },
       schedule: {
         time: $('schedule-time').value,

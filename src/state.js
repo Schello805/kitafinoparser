@@ -8,6 +8,7 @@ const EMPTY = {
   lastRun: null,
   lastNotification: null,
   lastHomematic: null,
+  lastBalanceWarning: null,
 };
 
 function sanitizeState(raw) {

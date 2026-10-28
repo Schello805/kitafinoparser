@@ -1,6 +1,6 @@
 import { sendToHomematic } from './homematic.js';
 import { fetchTodayStatus } from './kitafino/orders.js';
-import { buildNotification, sendNotification } from './notify.js';
+import { buildNotification, buildBalanceNotification, sendNotification } from './notify.js';
 import { readState, updateState } from './state.js';
 
 let running = null;
@@ -50,7 +50,13 @@ export async function runCheck({ notify = false, config } = {}) {
 
       if (config.homematic?.enabled && config.homematic?.host) {
         try {
-          const hmRes = await sendToHomematic(config.homematic, status);
+          const hmRes = await sendToHomematic(
+            {
+              ...config.homematic,
+              balanceWatch: config.balanceWatch,
+            },
+            status,
+          );
           updateState({
             lastHomematic: {
               at: new Date().toISOString(),
@@ -68,6 +74,36 @@ export async function runCheck({ notify = false, config } = {}) {
               error: err.message,
             },
           });
+        }
+      }
+
+      if (notify && config.balanceWatch?.enabled && config.balanceWatch?.notifyNtfy) {
+        const threshold = Number(config.balanceWatch.threshold ?? 10);
+        const isLow = Boolean(
+          status.account?.lowBalance ||
+            (status.account?.balanceAmount !== null &&
+              status.account?.balanceAmount < threshold),
+        );
+        if (isLow) {
+          const balNotif = buildBalanceNotification(status.account, threshold);
+          try {
+            await sendNotification(config.ntfy, balNotif);
+            updateState({
+              lastBalanceWarning: {
+                at: new Date().toISOString(),
+                ok: true,
+                message: balNotif.message,
+              },
+            });
+          } catch (err) {
+            updateState({
+              lastBalanceWarning: {
+                at: new Date().toISOString(),
+                ok: false,
+                error: err.message,
+              },
+            });
+          }
         }
       }
 

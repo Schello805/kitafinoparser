@@ -81,6 +81,7 @@ export async function sendToHomematic({
   variableName = 'Kitafino_Essen',
   variableOrdered = '',
   speechMode = 'sentence',
+  balanceWatch = {},
 } = {}, status) {
   if (!host) throw new Error('Homematic Host/IP nicht konfiguriert.');
   if (!variableName) throw new Error('Name der Homematic-Systemvariable fehlt.');
@@ -97,6 +98,24 @@ export async function sendToHomematic({
     const escapedVarBool = escapeRegaString(variableOrdered.trim());
     script += `object svB = dom.GetObject(ID_SYSTEM_VARIABLES).Get("${escapedVarBool}");\n`;
     script += `if (svB) { svB.State(${isOrdered ? 'true' : 'false'}); }\n`;
+  }
+
+  if (balanceWatch?.homematicVariable && balanceWatch.homematicVariable.trim()) {
+    const escapedVarWarn = escapeRegaString(balanceWatch.homematicVariable.trim());
+    const threshold = Number(balanceWatch.threshold ?? 10);
+    const isLow = Boolean(
+      status?.account?.lowBalance ||
+      (status?.account?.balanceAmount !== null && status?.account?.balanceAmount < threshold)
+    );
+    script += `object svW = dom.GetObject(ID_SYSTEM_VARIABLES).Get("${escapedVarWarn}");\n`;
+    script += `if (svW) { svW.State(${isLow ? 'true' : 'false'}); }\n`;
+  }
+
+  if (balanceWatch?.homematicBalanceVar && balanceWatch.homematicBalanceVar.trim()) {
+    const escapedVarAmount = escapeRegaString(balanceWatch.homematicBalanceVar.trim());
+    const amount = status?.account?.balanceAmount ?? 0;
+    script += `object svA = dom.GetObject(ID_SYSTEM_VARIABLES).Get("${escapedVarAmount}");\n`;
+    script += `if (svA) { svA.State(${amount}); }\n`;
   }
 
   script += `Write("<ok>");`;

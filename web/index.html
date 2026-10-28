@@ -74,8 +74,38 @@
             <span class="section-icon" aria-hidden="true">📅</span>
             <h2>Diese Woche</h2>
           </div>
-          <span id="week-summary" class="summary-pill"></span>
+          <div class="card-head-actions">
+            <span id="week-summary" class="summary-pill"></span>
+            <button id="open-calendar-modal" class="button-ghost small" type="button" title="Kalender abonnieren">
+              📅 Kalender-Abo
+            </button>
+          </div>
         </div>
+
+        <!-- Kalender-Abonnement Box -->
+        <div id="calendar-box" class="calendar-box" hidden>
+          <div class="calendar-box-header">
+            <strong>📅 Familienkalender (iCal / Webcal)</strong>
+            <button id="close-calendar-box" class="button-icon-subtle" type="button" aria-label="Schließen">✕</button>
+          </div>
+          <p class="sub-small">
+            Abonniere den Kitafino-Speiseplan direkt in Apple Kalender (iPhone/Mac), Google Kalender oder Outlook:
+          </p>
+          <div class="calendar-actions">
+            <a id="webcal-link" href="/calendar.ics" class="btn btn-primary small">
+              📲 1-Klick iPhone / Apple Abo
+            </a>
+            <a href="/calendar.ics" download="kitafino.ics" class="btn btn-secondary small">
+              📥 .ics herunterladen
+            </a>
+            <button id="copy-cal-url" class="button-ghost small" type="button">
+              📋 URL kopieren
+            </button>
+          </div>
+          <input id="cal-url-input" class="cal-url-field" type="text" readonly value="" />
+          <span id="cal-copy-msg" class="cal-copy-msg" aria-live="polite"></span>
+        </div>
+
         <ul id="week" class="week-list"></ul>
       </section>
 
@@ -363,6 +393,76 @@
                 📢 Homematic testen
               </button>
               <span id="homematic-test-msg" class="form-msg" aria-live="polite"></span>
+            </div>
+          </fieldset>
+
+          <!-- Guthaben-Wächter & Auflade-Warnung -->
+          <fieldset class="form-fieldset">
+            <legend class="form-legend">
+              <span class="legend-icon">💳</span> Guthaben-Wächter &amp; Auflade-Warnung
+              <span id="balance-watch-badge" class="cred-badge"></span>
+            </legend>
+
+            <div class="checkbox-group">
+              <input id="balance-watch-enabled" name="balanceWatchEnabled" type="checkbox" />
+              <label for="balance-watch-enabled"><strong>Guthaben automatisch überwachen &amp; bei niedrigem Stand warnen</strong></label>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="balance-threshold">Warn-Schwelle in Euro (€)</label>
+                <span class="hint-block">Warnung auslösen, wenn Guthaben unter diesen Betrag fällt.</span>
+                <input
+                  id="balance-threshold"
+                  name="balanceThreshold"
+                  type="number"
+                  step="0.50"
+                  min="0"
+                  placeholder="10.00"
+                  value="10.00"
+                />
+              </div>
+
+              <div class="field">
+                <label for="balance-homematic-var">Homematic Logikvariable <span class="hint">(wahr/falsch)</span></label>
+                <span class="hint-block">Optional: wahr bei niedrigem Guthaben, sonst falsch.</span>
+                <input
+                  id="balance-homematic-var"
+                  name="balanceHomematicVar"
+                  type="text"
+                  placeholder="Kitafino_Guthaben_Warnung"
+                  value="Kitafino_Guthaben_Warnung"
+                  autocorrect="off"
+                  autocapitalize="off"
+                  spellcheck="false"
+                />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="balance-homematic-val-var">Optionale Homematic Betragsvariable <span class="hint">(Zahlwert)</span></label>
+              <span class="hint-block">Optional: CCU-Zahlenvariable für den exakten Betrag (z. B. <code>Kitafino_Guthaben</code>).</span>
+              <input
+                id="balance-homematic-val-var"
+                name="balanceHomematicValVar"
+                type="text"
+                placeholder="Z. B. Kitafino_Guthaben"
+                autocorrect="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+            </div>
+
+            <div class="checkbox-group">
+              <input id="balance-notify-ntfy" name="balanceNotifyNtfy" type="checkbox" />
+              <label for="balance-notify-ntfy">Zusätzliche Push-Nachricht über ntfy senden, wenn Guthaben unter Schwelle fällt</label>
+            </div>
+
+            <div class="inline-actions">
+              <button id="test-balance" class="btn btn-secondary small" type="button">
+                💳 Guthaben-Warnung testen
+              </button>
+              <span id="balance-test-msg" class="form-msg" aria-live="polite"></span>
             </div>
           </fieldset>
 

@@ -27,6 +27,13 @@ export const DEFAULTS = {
     variableOrdered: '',
     speechMode: 'sentence',
   },
+  balanceWatch: {
+    enabled: true,
+    threshold: 10.0,
+    notifyNtfy: true,
+    homematicVariable: 'Kitafino_Guthaben_Warnung',
+    homematicBalanceVar: '',
+  },
   schedule: {
     enabled: true,
     time: '06:30',
