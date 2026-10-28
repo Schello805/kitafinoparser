@@ -72,7 +72,10 @@
         <div class="card-head">
           <div class="card-head-title">
             <span class="section-icon" aria-hidden="true">📅</span>
-            <h2>Diese Woche</h2>
+            <div>
+              <h2>Diese Woche</h2>
+              <p class="sub-small">Wochen-Speiseplan &amp; Bestellstatus für Frieda</p>
+            </div>
           </div>
           <div class="card-head-actions">
             <span id="week-summary" class="summary-pill"></span>
@@ -147,9 +150,9 @@
         <form id="settings" class="settings-form" method="post" action="/api/settings" hidden novalidate>
           
           <!-- Zeitplan -->
-          <fieldset class="form-fieldset">
+          <fieldset class="form-fieldset" data-section="schedule">
             <legend class="form-legend">
-              <span class="legend-icon">⏰</span> Uhrzeit der Nachricht (Zeitplan)
+              <span class="legend-icon-wrap" aria-hidden="true">⏰</span> Uhrzeit der Nachricht (Zeitplan)
             </legend>
 
             <div class="field">
@@ -182,9 +185,9 @@
           </fieldset>
 
           <!-- Kitafino Zugangsdaten -->
-          <fieldset class="form-fieldset">
+          <fieldset class="form-fieldset" data-section="kitafino">
             <legend class="form-legend">
-              <span class="legend-icon">🔐</span> Kitafino-Zugangsdaten
+              <span class="legend-icon-wrap" aria-hidden="true">🔐</span> Kitafino-Zugangsdaten
               <span id="kitafino-cred-badge" class="cred-badge"></span>
             </legend>
 
@@ -246,9 +249,9 @@
           </fieldset>
 
           <!-- ntfy Push-Server -->
-          <fieldset class="form-fieldset">
+          <fieldset class="form-fieldset" data-section="ntfy">
             <legend class="form-legend">
-              <span class="legend-icon">📱</span> ntfy-Server &amp; Zugangsdaten
+              <span class="legend-icon-wrap" aria-hidden="true">🔔</span> ntfy-Server &amp; Zugangsdaten
               <span id="ntfy-cred-badge" class="cred-badge"></span>
             </legend>
 
@@ -336,9 +339,9 @@
           </fieldset>
 
           <!-- Homematic Systemvariable für Alexa -->
-          <fieldset class="form-fieldset">
+          <fieldset class="form-fieldset" data-section="homematic">
             <legend class="form-legend">
-              <span class="legend-icon">🗣️</span> Homematic &amp; Alexa-Sprachausgabe
+              <span class="legend-icon-wrap" aria-hidden="true">🗣️</span> Homematic &amp; Alexa-Sprachausgabe
               <span id="homematic-badge" class="cred-badge"></span>
             </legend>
 
@@ -411,9 +414,9 @@
           </fieldset>
 
           <!-- Guthaben-Wächter & Auflade-Warnung -->
-          <fieldset class="form-fieldset">
+          <fieldset class="form-fieldset" data-section="balance">
             <legend class="form-legend">
-              <span class="legend-icon">💳</span> Guthaben-Wächter &amp; Auflade-Warnung
+              <span class="legend-icon-wrap" aria-hidden="true">💳</span> Guthaben-Wächter &amp; Auflade-Warnung
               <span id="balance-watch-badge" class="cred-badge"></span>
             </legend>
 
